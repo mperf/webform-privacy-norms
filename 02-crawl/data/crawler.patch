@@ -1,0 +1,509 @@
+diff --git a/crawler/package-lock.json b/crawler/package-lock.json
+index 6b394cb..bcc7e92 100644
+--- a/crawler/package-lock.json
++++ b/crawler/package-lock.json
+@@ -8,7 +8,7 @@
+         "@xenova/transformers": "^2.12.1",
+         "mnemonist": "^0.39.6",
+         "parse-domain": "^8.0.1",
+-        "playwright": "^1.41.2",
++        "playwright": "1.64.0",
+         "playwright-extra": "^4.3.6",
+         "puppeteer-extra-plugin-stealth": "^2.11.2",
+         "rimraf": "^5.0.5",
+@@ -1842,19 +1842,6 @@
+       "resolved": "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz",
+       "integrity": "sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw=="
+     },
+-    "node_modules/fsevents": {
+-      "version": "2.3.2",
+-      "resolved": "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz",
+-      "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
+-      "hasInstallScript": true,
+-      "optional": true,
+-      "os": [
+-        "darwin"
+-      ],
+-      "engines": {
+-        "node": "^8.16.0 || ^10.6.0 || >=11.0.0"
+-      }
+-    },
+     "node_modules/function-bind": {
+       "version": "1.1.2",
+       "resolved": "https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz",
+@@ -3188,33 +3175,30 @@
+       "integrity": "sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg=="
+     },
+     "node_modules/playwright": {
+-      "version": "1.41.2",
+-      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.41.2.tgz",
+-      "integrity": "sha512-v0bOa6H2GJChDL8pAeLa/LZC4feoAMbSQm1/jF/ySsWWoaNItvrMP7GEkvEEFyCTUYKMxjQKaTSg5up7nR6/8A==",
++      "version": "1.64.0",
++      "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.64.0.tgz",
++      "integrity": "sha512-kVzTnYFYEyQ9RGzBjNCd2+yEqWmVbxl3AHPynv3qQ6JTjv4a+kwRcnqQwIpuP3NnrnIrE/Q6wWAIAvMfIE2/Yg==",
+       "license": "Apache-2.0",
+       "dependencies": {
+-        "playwright-core": "1.41.2"
++        "playwright-core": "1.64.0"
+       },
+       "bin": {
+         "playwright": "cli.js"
+       },
+       "engines": {
+-        "node": ">=16"
+-      },
+-      "optionalDependencies": {
+-        "fsevents": "2.3.2"
++        "node": ">=20"
+       }
+     },
+     "node_modules/playwright-core": {
+-      "version": "1.41.2",
+-      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.41.2.tgz",
+-      "integrity": "sha512-VaTvwCA4Y8kxEe+kfm2+uUUw5Lubf38RxF7FpBxLPmGe5sdNkSg5e3ChEigaGrX7qdqT3pt2m/98LiyvU2x6CA==",
++      "version": "1.64.0",
++      "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.64.0.tgz",
++      "integrity": "sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==",
+       "license": "Apache-2.0",
+       "bin": {
+         "playwright-core": "cli.js"
+       },
+       "engines": {
+-        "node": ">=16"
++        "node": ">=20"
+       }
+     },
+     "node_modules/playwright-extra": {
+diff --git a/crawler/package.json b/crawler/package.json
+index c94f778..6022e24 100644
+--- a/crawler/package.json
++++ b/crawler/package.json
+@@ -8,7 +8,7 @@
+     "@xenova/transformers": "^2.12.1",
+     "mnemonist": "^0.39.6",
+     "parse-domain": "^8.0.1",
+-    "playwright": "^1.41.2",
++    "playwright": "1.64.0",
+     "playwright-extra": "^4.3.6",
+     "puppeteer-extra-plugin-stealth": "^2.11.2",
+     "rimraf": "^5.0.5",
+diff --git a/crawler/src/crawler.ts b/crawler/src/crawler.ts
+index 5c1fc48..f5db93c 100644
+--- a/crawler/src/crawler.ts
++++ b/crawler/src/crawler.ts
+@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
+ import { promises as fs } from 'node:fs';
+ import path from 'node:path';
+ import os from 'node:os';
++import { pathToFileURL } from 'node:url';
+ import { execFileSync } from 'node:child_process';
+ import yargs from 'yargs';
+ import { hideBin } from 'yargs/helpers';
+@@ -15,11 +16,11 @@ import { xdgCache } from 'xdg-basedir';
+ import { rimraf } from 'rimraf';
+ 
+ import { StepSpec, JobSpec } from './types.js';
+-import { URLPlus, hashObjectSha256, isElementVisible, sleep } from './utils.js';
++import { URLPlus, hashObjectSha256, sleep } from './utils.js';
+ import {
+   findNextSteps, markInterestingElements, getFormInformation, initFunction, patchNonFormFields,
+ } from './page-functions.js';
+-import { estimateReward } from './reward.js';
++
+ 
+ /**
+  * Locate the element that match the given attributes
+@@ -48,6 +49,8 @@ async function locateOriginElement(page: Page, step: StepSpec): Promise<Locator
+   return null;
+ }
+ 
++class ServerRetryError extends Error {}
++
+ class PageStateError extends Error {
+   constructor(message: string) {
+     super(message);
+@@ -86,7 +89,11 @@ async function doSteps(page: Page, steps: StepSpec[]): Promise<(string | null)[]
+     switch (command) {
+       case 'goto': {
+         actionFunc = async () => {
+-          await page.goto(args[0], { referer: step.origin?.location, waitUntil: 'commit' });
++          const response = await page.goto(args[0], { referer: step.origin?.location, waitUntil: 'commit' });
++          if (response && [429, 503].includes(response.status())) {
++            const retryAfter = response.headers()['retry-after'];
++            if (retryAfter) throw new ServerRetryError(`Server requested Retry-After ${retryAfter}; stop this site`);
++          }
+         };
+         break;
+       }
+@@ -158,12 +165,12 @@ async function doSteps(page: Page, steps: StepSpec[]): Promise<(string | null)[]
+   return history;
+ }
+ 
+-async function checkForms(page: Page, outDir: string) {
++export async function checkForms(page: Page, outDir: string, screenshots: boolean) {
+   let forms = await page.locator('form:not([data-flag-visited])').all();
+ 
+   for (const [idx, form] of forms.entries()) {
+     await Promise.all([
+-      form.screenshot({ path: path.join(outDir, `form-${idx}.png`) }).catch(() => null),
++      screenshots ? form.screenshot({ path: path.join(outDir, `form-${idx}.png`) }).catch(() => null) : Promise.resolve(),
+       form
+         .evaluate(getFormInformation)
+         .then((info) => fs.writeFile(path.join(outDir, `form-${idx}.json`), JSON.stringify(info, null, 2))),
+@@ -177,7 +184,7 @@ async function checkForms(page: Page, outDir: string) {
+ 
+   for (const [idx, form] of forms.entries()) {
+     await Promise.all([
+-      form.screenshot({ path: path.join(outDir, `form-p${idx}.png`) }).catch(() => null),
++      screenshots ? form.screenshot({ path: path.join(outDir, `form-p${idx}.png`) }).catch(() => null) : Promise.resolve(),
+       form
+         .evaluate(getFormInformation)
+         .then((info) => fs.writeFile(path.join(outDir, `form-p${idx}.json`), JSON.stringify(info, null, 2))),
+@@ -218,7 +225,7 @@ function buildSteps(steps: StepSpec[], nextStep: StepSpec): StepSpec[] | null {
+   return [...steps, nextStep];
+ }
+ 
+-async function downloadExtensions(cacheDir: string) {
++export async function downloadExtensions(cacheDir: string) {
+   const extensionUrls = [
+     // eslint-disable-next-line max-len
+     'https://github.com/OhMyGuus/I-Still-Dont-Care-About-Cookies/releases/download/v1.1.1/istilldontcareaboutcookies-1.1.1.crx',
+@@ -234,7 +241,8 @@ async function downloadExtensions(cacheDir: string) {
+     if (await fs.stat(markerPath).then(() => false).catch(() => true)) {
+       console.log('Downloading extension:', url);
+ 
+-      const resource = await fetch(url);
++      const resource = await fetch(url, { signal: AbortSignal.timeout(30000) });
++      if (!resource.ok) throw new Error(`Extension download failed: HTTP ${resource.status}`);
+       const data = await resource.arrayBuffer();
+ 
+       const downloadPath = path.join(cacheDir, 'ext.crx');
+@@ -249,7 +257,28 @@ async function downloadExtensions(cacheDir: string) {
+   return returnPaths;
+ }
+ 
+-async function doJob(job: JobSpec, page: Page, outDir: string): Promise<StepSpec[] | null> {
++export async function saveJobInformation(
++  page: Page, outDir: string, job: JobSpec, navigationHistory: (string | null)[], screenshots: boolean,
++) {
++  const [pageHTML, pageTitle, calledSpecialAPIs, screenshot] = await Promise.all([
++    page.content(),
++    page.title(),
++    page.evaluate(() => (window as any).calledSpecialAPIs),
++    screenshots ? page.screenshot({ fullPage: true }) : Promise.resolve(null),
++  ]);
++
++  await Promise.all([
++    fs.writeFile(path.join(outDir, 'page.html'), pageHTML),
++    screenshot ? fs.writeFile(path.join(outDir, 'page.png'), screenshot) : Promise.resolve(),
++    fs.writeFile(
++      path.join(outDir, 'job.json'),
++      JSON.stringify({ pageTitle, ...job, navigationHistory, calledSpecialAPIs }, null, 2),
++    ),
++  ]);
++}
++
++async function doJob(job: JobSpec, page: Page, outDir: string, screenshots: boolean,
++  estimateReward: (step: StepSpec) => Promise<number>): Promise<StepSpec[] | null> {
+   await page.context().setOffline(false);
+ 
+   // Step 1: Navigation / Repeat steps
+@@ -259,6 +288,7 @@ async function doJob(job: JobSpec, page: Page, outDir: string): Promise<StepSpec
+     console.log('Navigating...');
+     navigationHistory = await doSteps(page, job.steps);
+   } catch (e) {
++    if (e instanceof ServerRetryError) throw e;
+     if (e instanceof Error) {
+       console.error('Failed to recover page state:', e.message);
+       return null;
+@@ -273,21 +303,7 @@ async function doJob(job: JobSpec, page: Page, outDir: string): Promise<StepSpec
+   try {
+     console.log('Saving job information...');
+ 
+-    const [pageHTML, pageTitle, calledSpecialAPIs, screenshot] = await Promise.all([
+-      page.content(),
+-      page.title(),
+-      page.evaluate(() => (window as any).calledSpecialAPIs),
+-      page.screenshot({ fullPage: true }),
+-    ]);
+-
+-    await Promise.all([
+-      fs.writeFile(path.join(outDir, 'page.html'), pageHTML),
+-      fs.writeFile(path.join(outDir, 'page.png'), screenshot),
+-      fs.writeFile(
+-        path.join(outDir, 'job.json'),
+-        JSON.stringify({ pageTitle, ...job, navigationHistory, calledSpecialAPIs }, null, 2),
+-      ),
+-    ]);
++    await saveJobInformation(page, outDir, job, navigationHistory, screenshots);
+   } catch (e) {
+     if (e instanceof Error) {
+       console.error('Failed to save job information:', e.message);
+@@ -300,7 +316,7 @@ async function doJob(job: JobSpec, page: Page, outDir: string): Promise<StepSpec
+   // Step 3: Search the webpage for forms
+   try {
+     console.log('Checking forms...');
+-    await checkForms(page, outDir);
++    await checkForms(page, outDir, screenshots);
+   } catch (e) {
+     if (e instanceof Error) {
+       console.error('Failed to check forms:', e.message);
+@@ -338,7 +354,7 @@ async function doJob(job: JobSpec, page: Page, outDir: string): Promise<StepSpec
+   return nextStepChoices;
+ }
+ 
+-async function initBrowserContext(cacheDir: string): Promise<BrowserContext> {
++export async function initBrowserContext(cacheDir: string, profile: any): Promise<BrowserContext> {
+   // Setup extensions
+   const extensionPaths = await downloadExtensions(cacheDir);
+ 
+@@ -347,6 +363,7 @@ async function initBrowserContext(cacheDir: string): Promise<BrowserContext> {
+   await rimraf(userDataDir);
+   process.on('exit', () => rimraf.sync(userDataDir));
+   const browserContext = await chromium.launchPersistentContext(userDataDir, {
++    channel: 'chromium',
+     args: [
+       '--disable-extensions-except=' + extensionPaths.join(','),
+       '--load-extension=' + extensionPaths.join(','),
+@@ -354,10 +371,10 @@ async function initBrowserContext(cacheDir: string): Promise<BrowserContext> {
+     chromiumSandbox: os.userInfo().uid !== 0,
+     // eslint-disable-next-line max-len
+     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.28 Safari/537.36',
+-    locale: 'en-US',
+-    timezoneId: 'America/Los_Angeles',
++    locale: profile.locale,
++    timezoneId: profile.timezone,
+     serviceWorkers: 'block',
+-    geolocation: { latitude: 38.581667, longitude: -121.494444 },
++    geolocation: { latitude: profile.latitude, longitude: profile.longitude },
+     permissions: [
+       'geolocation',
+       'camera', 'microphone',
+@@ -365,11 +382,24 @@ async function initBrowserContext(cacheDir: string): Promise<BrowserContext> {
+     ],
+   });
+   browserContext.setDefaultTimeout(10000);
++  const extensions = await Promise.all(extensionPaths.map(async (dir) => {
++    const manifest = JSON.parse(await fs.readFile(path.join(dir, 'manifest.json'), 'utf8'));
++    const messages = manifest.default_locale
++      ? JSON.parse(await fs.readFile(path.join(dir, '_locales', manifest.default_locale, 'messages.json'), 'utf8')) : {};
++    const messageKey = manifest.name.match(/^__MSG_(.*)__$/)?.[1];
++    return { name: messageKey ? messages[messageKey]?.message || manifest.name : manifest.name,
++      version: manifest.version, manifestVersion: manifest.manifest_version };
++  }));
++  await fs.writeFile(path.join(profile.outDir, 'browser-profile.json'), JSON.stringify({
++    locale: profile.locale, timezone: profile.timezone, latitude: profile.latitude,
++    longitude: profile.longitude, browserVersion: browserContext.browser()?.version(),
++    extensions, cookieHandling: 'I Still Dont Care About Cookies and Privacy Badger',
++    capturedAt: new Date().toISOString(),
++  }, null, 2));
+ 
+   await Promise.all([
+     browserContext.addInitScript(initFunction),
+     browserContext.exposeFunction('hashObjectSha256', hashObjectSha256),
+-    browserContext.exposeBinding('isElementVisible', isElementVisible, { handle: true }),
+   ]);
+ 
+   return browserContext;
+@@ -411,21 +441,29 @@ function parseArguments(): any {
+       type: 'number',
+       default: 6000, // 6 seconds
+     })
++    .option('screenshots', { type: 'boolean', default: false })
++    .option('locale', { type: 'string', default: 'en-US' })
++    .option('timezone', { type: 'string', default: 'Europe/Stockholm' })
++    .option('latitude', { type: 'number', default: 59.3293 })
++    .option('longitude', { type: 'number', default: 18.0686 })
+     .help('help')
+     .parse();
+ 
+   return argv;
+ }
+ 
+-await (async () => {
++if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await (async () => {
+   const programName = 'web-form-crawler';
+ 
+   const cacheDir = path.join(xdgCache || os.tmpdir(), programName);
+ 
+   const {
+-    outDir, landingURLs, maxJobCount, priorityDecayFactor, priorityRandomizationFactor, minJobTime,
++    outDir, landingURLs, maxJobCount, priorityDecayFactor, priorityRandomizationFactor, minJobTime, screenshots,
++    locale, timezone, latitude, longitude,
+   } = parseArguments();
+ 
++  const estimateReward = await (await import('./reward.js')).createEmbeddingReward();
++
+   const jobQueue = new mnemonist.Heap<JobSpec>((j1, j2) => Math.sign(j2.priority - j1.priority));
+ 
+   landingURLs.forEach((url: string) => jobQueue.push({
+@@ -442,8 +480,9 @@ await (async () => {
+ 
+   let jobCount = 0;
+   await fs.mkdir(cacheDir, { recursive: true });
+-  let browserContext = await initBrowserContext(cacheDir);
+-  await fs.mkdir(outDir);
++  await fs.mkdir(outDir, { recursive: true });
++  const profile = { locale, timezone, latitude, longitude, outDir };
++  let browserContext = await initBrowserContext(cacheDir, profile);
+ 
+   // Main loop
+   while (jobCount < maxJobCount && jobQueue.size > 0) {
+@@ -473,7 +512,7 @@ await (async () => {
+ 
+       console.log('Restarting browser...');
+       await browserContext.close().catch(() => null);
+-      browserContext = await initBrowserContext(cacheDir);
++      browserContext = await initBrowserContext(cacheDir, profile);
+ 
+       page = await browserContext.newPage();
+     }
+@@ -482,7 +521,7 @@ await (async () => {
+     console.log(`Job ${jobHash} started`);
+ 
+     // The main function -- no catch block because ignorable errors should have been handled in it
+-    const nextStepChoices = await doJob(job, page, jobOutDir);
++    const nextStepChoices = await doJob(job, page, jobOutDir, screenshots, estimateReward);
+ 
+     jobCount += 1;
+     let newJobCount = 0;
+diff --git a/crawler/src/page-functions.ts b/crawler/src/page-functions.ts
+index 901da6e..3271f9f 100644
+--- a/crawler/src/page-functions.ts
++++ b/crawler/src/page-functions.ts
+@@ -67,7 +67,9 @@ export function initFunction() {
+ 
+ export async function getFormInformation(formElement: HTMLFormElement): Promise<WebForm> {
+   function getTrimmedText(element: HTMLElement): string {
+-    const rawText = element.innerText || element.textContent || '';
++    const clone = element.cloneNode(true) as HTMLElement;
++    if (element.tagName === 'LABEL') clone.querySelectorAll('input, select, textarea').forEach((node) => node.remove());
++    const rawText = element.tagName === 'LABEL' ? clone.textContent || '' : element.innerText || element.textContent || '';
+     return rawText.split('\n').map((s) => s.trim()).join('\n');
+   }
+ 
+@@ -77,7 +79,9 @@ export async function getFormInformation(formElement: HTMLFormElement): Promise<
+       tagName: element.tagName,
+       attributes: [...element.attributes].reduce((o, a) => Object.assign(o, { [a.name]: a.value }), {}),
+       text: getTrimmedText(element as HTMLElement),
+-      isVisible: await (window as any).isElementVisible(formElement),
++      // Match Playwright's visible-box rule on this individual element.
++      isVisible: !['hidden', 'collapse'].includes(window.getComputedStyle(element).visibility)
++        && element.getBoundingClientRect().width > 0 && element.getBoundingClientRect().height > 0,
+     };
+   }
+ 
+@@ -98,20 +102,37 @@ export async function getFormInformation(formElement: HTMLFormElement): Promise<
+       continue;
+     }
+ 
++    if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(childElement.tagName)) continue;
++
+     // A general form field
+     const fieldInfo: WebFormField = {
+       name: (childElement as HTMLInputElement).name || null,
+       fieldElement: await getElementInformation(childElement),
++      disabled: childElement.matches(':disabled') || childElement.getAttribute('aria-disabled') === 'true',
++      readOnly: childElement.hasAttribute('readonly') || childElement.getAttribute('aria-readonly') === 'true',
++      htmlRequired: childElement.hasAttribute('required'),
++      ariaRequired: childElement.getAttribute('aria-required'),
++      requiredText: [],
++      optionalText: [],
++      groupLabel: childElement.closest('fieldset')?.querySelector('legend')?.textContent?.trim() || '',
++      options: childElement instanceof HTMLSelectElement
++        ? Array.from(childElement.options).map((option) => option.textContent?.trim() || '') : [],
++
+     };
+ 
+     formInfo.fields.push(fieldInfo);
+ 
+     // Find the label associated with the input element
+     if (childElement.id) {
+-      const e = formElement.querySelector<HTMLElement>(`label[for="${childElement.id}"]`);
++      const e = formElement.querySelector<HTMLElement>(`label[for="${CSS.escape(childElement.id)}"]`);
+       if (e !== null) fieldInfo.labelElement = await getElementInformation(e);
+     }
+ 
++    const wrappingLabel = childElement.closest('label');
++    if (!fieldInfo.labelElement && wrappingLabel) {
++      fieldInfo.labelElement = await getElementInformation(wrappingLabel);
++    }
++
+     // If no label, provide the previous (visible) element as a hint
+     if (fieldInfo.labelElement === undefined) {
+       const otherFields = Array
+@@ -139,6 +160,18 @@ export async function getFormInformation(formElement: HTMLFormElement): Promise<
+         fieldInfo.previousElement = await getElementInformation(previousElement);
+       }
+     }
++
++    const describedBy = (childElement.getAttribute('aria-describedby') || '').split(/\s+/)
++      .map((id) => document.getElementById(id)?.textContent || '').join(' ');
++    const evidence = [fieldInfo.labelElement?.text, fieldInfo.previousElement?.text,
++      fieldInfo.groupLabel, describedBy, childElement.getAttribute('aria-label')].filter(Boolean).join(' ');
++    const negated = evidence.match(/\b(?:not\s+(?:required|mandatory)|optional)\b/gi) || [];
++    const affirmative = evidence.replace(/\bnot\s+(?:required|mandatory)\b/gi, '');
++    fieldInfo.requiredText = affirmative.match(/\b(?:required|mandatory)\b/gi) || [];
++    fieldInfo.optionalText = negated;
++    if (evidence.includes('*') && /\*\s*(?:means|indicates|denotes)?\s*(?:a\s+)?required/i.test(formElement.textContent || '')) {
++      fieldInfo.requiredText.push('* explicitly means required');
++    }
+   }
+ 
+   return formInfo;
+@@ -227,6 +260,10 @@ export async function findNextSteps(): Promise<StepSpec[]> {
+     // Skip visited and disabled elements
+     '*:not([data-flag-visited]):not([disabled]):not([aria-disabled="true"])',
+   )) {
++    // Do not submit forms during collection.
++    if ((element instanceof HTMLButtonElement || element instanceof HTMLInputElement)
++        && element.form && element.type === 'submit') continue;
++
+     if (!!(element).onclick
+         || ['link', 'button'].includes(element.role || '')
+         || ['A', 'BUTTON'].includes(element.tagName)) {
+diff --git a/crawler/src/reward.ts b/crawler/src/reward.ts
+index 19c4eef..2e20420 100644
+--- a/crawler/src/reward.ts
++++ b/crawler/src/reward.ts
+@@ -1,4 +1,3 @@
+-import { pipeline, cos_sim } from '@xenova/transformers';
+ import { StepSpec } from './types.js';
+ 
+ const SEED_PHRASES = `
+@@ -108,7 +107,9 @@ use phone or email
+  * Estimate the reward of clicking an element
+  */
+ // eslint-disable-next-line import/prefer-default-export
+-export const estimateReward = await (async () => {
++export async function createEmbeddingReward() {
++  const { pipeline, cos_sim, env } = await import('@xenova/transformers');
++  if (process.env.WEBFORM_MODEL_CACHE) env.cacheDir = process.env.WEBFORM_MODEL_CACHE;
+   const pipe = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+   const seedEmbeddings = await pipe(SEED_PHRASES, { pooling: 'mean', normalize: true });
+ 
+@@ -133,4 +134,4 @@ export const estimateReward = await (async () => {
+ 
+     return maxSimilarity;
+   };
+-})();
++}
+diff --git a/crawler/src/types.ts b/crawler/src/types.ts
+index cd44c4b..63844a2 100644
+--- a/crawler/src/types.ts
++++ b/crawler/src/types.ts
+@@ -29,6 +29,14 @@ export interface WebFormField {
+   fieldElement: ElementInformation;
+   labelElement?: ElementInformation;
+   previousElement?: ElementInformation;
++  disabled: boolean;
++  readOnly: boolean;
++  htmlRequired: boolean;
++  ariaRequired: string | null;
++  requiredText: string[];
++  optionalText: string[];
++  groupLabel: string;
++  options: string[];
+ }
+ 
+ export interface WebForm {

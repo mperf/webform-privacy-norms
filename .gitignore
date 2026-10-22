@@ -1,0 +1,26 @@
+# Credentials
+.env
+.env.*
+!.env.example
+# Recreated runtime and caches
+.venv/
+.browsers/
+.npm-cache/
+.pip-cache/
+upstream/
+__pycache__/
+*.py[cod]
+.DS_Store
+# Private experiment inputs, captures, requests and review records
+/*/data/
+!/02-crawl/data/
+/02-crawl/data/*
+!/02-crawl/data/crawler.patch
+# Internal records and duplicate/generated packages
+/HANDOFF.md
+/deliverables/documentation-verification.json
+/output/
+*.zip
+*.log
+*.tmp
+.local/

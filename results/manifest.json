@@ -1,0 +1,27 @@
+{
+  "upstream_commit": "a4f391d604e5cd557b881145b2a1cfd072e542d0",
+  "cohort_sha256": "9a454091daead43902d188da386a2658b0681afc2194dd39ae2224d998bff4dc",
+  "source_analysis": "05-analyze/data/methodology-v3/final",
+  "comparison_domains": 261,
+  "files": {
+    "summary.json": "1877368aecfe36fcd868f90d19b8a9182ea27c000a8c6fbf22506053a5571bbc",
+    "contact-rates.csv": "e0c313311d82b83e2dd9c65120d819700a7f56dc639a5368fe8bfba4be3de8be",
+    "README.md": "596613064817daa66796757fd579c276e48ea13f6060fe96f1594357fe0764b5",
+    "rates.csv": "61753a5eb99bdd304e7d06e2ad643e8e88a9a43c518b2377071df7ff59c1e42b",
+    "requiredness.csv": "58553c911f70dcec5ea2a0427b97e66bc4c3ae34e6bb98c515e2e391c58b92f6",
+    "figures/figure-5-cells.csv": "4732d75436478903111a5f79b639cbf9a7d09873224cabcb48d246bba6bde809",
+    "figures/figure-4-historical-selected.png": "722c4e0dd94d0f317e2d67b1cc3e520d4a6faaa9cf75b417e2e5ef318246284a",
+    "figures/figure-4-historical-selected.pdf": "f76cc1cd9efdd6a35d7ab2c6896d8badd7f0ea482362d093c2925d7dbe284b25",
+    "figures/figure-5-historical-compared.png": "9b6ee0e7a81e82055d7d54d2356e25c36f736baf105d1cedfbd873f4883f19c6",
+    "figures/figure-5-historical-compared.pdf": "859537a7c9a860b0db5937681edd4d3439613eda6e97047e083301625a07e2d5",
+    "figures/figure-4-new-compared.png": "3e3ec9792ef9c19f83ce6f83707f456a1663d9d3fd177fdaf9b2429568494de6",
+    "figures/figure-4-new-compared.pdf": "19b900e1b73013878acc98edbd7554e9fc28a6d5024e9e5b4af31fbc7bfe8703",
+    "figures/figure-4-historical-compared.pdf": "80dda1176695763103a75256c2629a3f5fcbb9f12515b8809d66fb2d6f156762",
+    "figures/paper-style-figures.pdf": "156c5174e3cc08969b89904ab0c4dfee66f36bb0801cbef1d1a0448ddd1a9f7c",
+    "figures/figure-4-historical-compared.png": "aba9c8ca00cc18ae5c1da9eec547aa46c28fed63f83d95039877edf64f3d1155",
+    "figures/figure-5-new-compared.png": "87999bbf755c23c9386237b6ea20a6212e3f845b03d7904766088d4167e98230",
+    "figures/figure-5-historical-selected.pdf": "7324a0a58ebbbc4df4b18239211132ae8642e8c2a33136e408604cea2d4b71db",
+    "figures/figure-5-historical-selected.png": "0dfa801038a262de9567f6d3e7313a1a51120f8621ae1567daab8c1013db353f",
+    "figures/figure-5-new-compared.pdf": "c3813c42d3b2081f95f2cc98e2b47afcf4374143b254dfa287b79f516ee887c5"
+  }
+}

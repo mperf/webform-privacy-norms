@@ -1,0 +1,39 @@
+{
+  "selected": 500,
+  "attempted": 500,
+  "reached": 466,
+  "complete": 405,
+  "partial": 55,
+  "form_bearing": 407,
+  "fully_annotated_form_domains": 26,
+  "compared": 261,
+  "forms": 7953,
+  "fully_annotated_forms": 3316,
+  "comparison_resolved_forms": 7478,
+  "comparison_resolved_form_domains": 229,
+  "unjoined_annotation_identities": 0,
+  "elapsed_seconds": 6.294,
+  "crawl_outcomes": {
+    "complete": 405,
+    "partial_timeout": 55,
+    "failed": 6,
+    "unreached": 34
+  },
+  "annotation_origins": {
+    "v2_carried_forward": 42074,
+    "v3_reannotated": 1018
+  },
+  "validation": {
+    "random_forms": 20,
+    "form_exact_agreement": 17,
+    "random_groups": 20,
+    "group_exact_agreement": 16,
+    "reviewers": 1,
+    "fresh_final_protocol_human_labels_available": false
+  },
+  "cost_usd": {
+    "measured": "0.658587720",
+    "reserved": "0.005376000",
+    "total": "0.663963720"
+  }
+}

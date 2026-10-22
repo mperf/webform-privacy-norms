@@ -1,0 +1,9 @@
+{
+  "source": "upstream/crawler/src/page-functions.ts",
+  "lines": [
+    109,
+    116
+  ],
+  "source_sha256": "5e7199579c4ffca2b1a8595fcd7e30325a6b192c9ebc2967103e93fbf5e67a95",
+  "description": "Rendered exact source excerpt, not a website or GUI screenshot."
+}

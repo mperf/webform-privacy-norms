@@ -1,0 +1,9 @@
+dataset,cohort,category,form_type,pi_type,numerator,denominator,rate
+historical,compared,All,All,EmailAddress,255,261,0.9770114942528736
+historical,compared,All,All,PhoneNumber,101,261,0.38697318007662834
+historical,compared,All,All,PersonName,180,261,0.6896551724137931
+historical,compared,All,All,Address,45,261,0.1724137931034483
+new,compared,All,All,EmailAddress,147,261,0.5632183908045977
+new,compared,All,All,PhoneNumber,33,261,0.12643678160919541
+new,compared,All,All,PersonName,81,261,0.3103448275862069
+new,compared,All,All,Address,3,261,0.011494252873563218

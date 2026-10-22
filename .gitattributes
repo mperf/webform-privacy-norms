@@ -1,0 +1,6 @@
+# Normalize source/documentation text while preserving checksummed artifacts.
+* text=auto
+*.csv -text whitespace=cr-at-eol
+*.patch -text whitespace=-blank-at-eol
+*.pdf binary
+*.png binary
