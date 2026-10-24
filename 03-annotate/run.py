@@ -309,7 +309,7 @@ def freeze_followup(args):
         'config': {'model': MODEL, 'prompt_version': PROMPT_VERSION, 'threshold': PI_THRESHOLD, 'review_margin': REVIEW_MARGIN, 'form_threshold': FORM_THRESHOLD},
         'input_sha256': sha256_file(args.input), 'source_sha256': {p: sha256_file(ROOT/p) for p in source_paths},
         'reserved_domains': sorted(holdout), 'records': records,
-        'provenance': 'Context and operational taxonomy clarifications changed together. AI evidence reasons are not human validation. Potential purpose blockers are scoped contingency requests.'}
+        'provenance': 'Context and operational taxonomy clarifications changed together. Jev evidence reasons are not human validation. Potential purpose blockers are scoped contingency requests.'}
     (directory/'frozen-run.py').write_bytes(Path(__file__).read_bytes())
     (directory/'selection.json').write_text(json.dumps(manifest, indent=2)+'\n')
     (directory/'pilot-selection.json').write_text(json.dumps(dict(manifest, records=pilot), indent=2)+'\n')
